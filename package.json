@@ -1,5 +1,5 @@
 {
-	"name": "@whitebox-co/amazon-advertising-api-sdk",
+	"name": "amz-ads-api-sdk",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
