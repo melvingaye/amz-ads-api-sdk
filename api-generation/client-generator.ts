@@ -2,15 +2,12 @@ import { template, TemplateExecutor } from 'lodash';
 import { Project } from 'ts-morph';
 import { SCHEMAS, PATHS } from '../src/constants';
 import { apiClientTemplate } from './client-template';
-import { kebabSchemaName, generateAPIClientFileName, generateAPIClientClassname } from './util';
+import { kebabSchemaName, generateAPIClientFileName, generateAPIClientClassname, logger } from './util';
 
-function generateAPIClient(
-	project: Project,
-	executor: TemplateExecutor,
-	schemaName: string,
-	apiClientFileName: string,
-	apiClientClassName: string
-) {
+const generateAPIClient = (project: Project, executor: TemplateExecutor, schemaName: string) => {
+	const apiClientFileName = generateAPIClientFileName(schemaName);
+	const apiClientClassName = generateAPIClientClassname(apiClientFileName);
+
 	// Find main api class
 	const sourceFile = project.getSourceFileOrThrow(`${PATHS.MODELS}/${kebabSchemaName(schemaName, 'ts')}`);
 
@@ -43,9 +40,9 @@ function generateAPIClient(
 	project.createSourceFile(`${PATHS.CLIENTS}/${apiClientFileName}.ts`, compiledFile, {
 		overwrite: true,
 	});
-}
+};
 
-function generateExportStatements(project: Project) {
+const generateExportStatements = (project: Project) => {
 	const compileExportStatement = template(`export * from './<%= apiClientFileName %>'`);
 
 	const exportStatements = SCHEMAS.map((schema) =>
@@ -57,27 +54,21 @@ function generateExportStatements(project: Project) {
 	project.createSourceFile(`${PATHS.CLIENTS}/index.ts`, exportStatements.join('\n'), {
 		overwrite: true,
 	});
-}
+};
 
-export function generateAPIClients(): void {
-	const compileAPIClient = template(apiClientTemplate);
+const generateAPIClients = () => {
+	const compiledClientTemplate = template(apiClientTemplate);
+
 	const project = new Project({
 		tsConfigFilePath: './tsconfig.json',
 	});
 
 	for (const { name } of SCHEMAS) {
-		const apiClientFileName = generateAPIClientFileName(name);
-		generateAPIClient(
-			project,
-			compileAPIClient,
-			name,
-			apiClientFileName,
-			generateAPIClientClassname(apiClientFileName)
-		);
+		generateAPIClient(project, compiledClientTemplate, name);
 	}
 
 	generateExportStatements(project);
 	project.saveSync();
-}
+};
 
-export default { generateAPIClients };
+export { generateAPIClients };

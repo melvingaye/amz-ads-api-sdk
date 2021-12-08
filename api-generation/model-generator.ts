@@ -13,7 +13,8 @@ const execOpenApiGenerator = (fileName: string) => {
 	console.log(apiInputFile);
 	const apiOutputFile = `${PATHS.APIS}/${fileName.slice(0, fileName.length - 4)}`;
 
-	const command = `openapi-generator-cli generate -g typescript-axios --enable-post-process-file --additional-properties=supportES6=true,useSingleRequestParameter=treu --type-mappings=set=Array --skip-validate-spec -o ${apiOutputFile} -i ${apiInputFile}`;
+	const command = `openapi-generator-cli generate -g typescript-axios --enable-post-process-file --additional-properties=supportES6=true,useSingleRequestParameter=true
+	--type-mappings=set=Array --skip-validate-spec -o ${apiOutputFile} -i ${apiInputFile}`;
 	execSync(command);
 };
 
